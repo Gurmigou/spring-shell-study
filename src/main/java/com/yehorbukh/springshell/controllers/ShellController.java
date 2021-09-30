@@ -1,5 +1,6 @@
 package com.yehorbukh.springshell.controllers;
 
+import com.yehorbukh.springshell.exceptions.RegionNotFoundException;
 import com.yehorbukh.springshell.services.WeatherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
@@ -18,13 +19,13 @@ public class ShellController {
 
     @ShellMethod(key = "weather in",
                  value = "returns current weather of the selected region")
-    public String currentWeatherInRegion(String region) throws IOException, InterruptedException {
-        return weatherService.getCurrentDescription(region);
+    public String currentWeatherInRegion(String region) throws IOException, InterruptedException, RegionNotFoundException {
+        return weatherService.getCurrentWeatherDescription(region);
     }
 
     @ShellMethod(key = "do i need umbrella in",
                  value = "returns a message which tells if the user needs an umbrella now")
-    public String doINeedUmbrella(String region) throws IOException, InterruptedException {
+    public String doINeedUmbrella(String region) throws IOException, InterruptedException, RegionNotFoundException {
         boolean rains = weatherService.isRainNow(region);
         return rains ? "Yes, it's raining now" : "No, leave your umbrella at home";
     }

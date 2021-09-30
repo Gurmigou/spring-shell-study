@@ -1,5 +1,6 @@
 package com.yehorbukh.springshell.repositories;
 
+import com.yehorbukh.springshell.exceptions.RegionNotFoundException;
 import com.yehorbukh.springshell.models.Weather;
 import com.yehorbukh.springshell.models.WeatherType;
 import org.json.JSONObject;
@@ -35,7 +36,9 @@ public class WeatherRepo {
 //                      .block();
 //    }
 
-    private String executeWeatherRequest(String region) throws IOException, InterruptedException {
+    private String executeWeatherRequest(String region)
+            throws IOException, InterruptedException, RegionNotFoundException
+    {
         // get an api url with correct region name
         String urlApiWithRegion = insertRegionIntoApiUrl(region);
 
@@ -46,8 +49,12 @@ public class WeatherRepo {
                 .GET()
                 .build();
 
-        HttpResponse<String> response = client.send(request,
-                HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = client
+                .send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() >= 400 && response.statusCode() < 500)
+            throw new RegionNotFoundException("Region " + region + " wasn't found");
+
         return response.body();
     }
 
@@ -67,7 +74,9 @@ public class WeatherRepo {
         return null;
     }
 
-    public Weather currentWeather(String region) throws IOException, InterruptedException {
+    public Weather currentWeather(String region)
+            throws IOException, InterruptedException, RegionNotFoundException
+    {
         var json = new JSONObject(executeWeatherRequest(region));
         var requireJsonObject = json
                     .getJSONArray("weather")
